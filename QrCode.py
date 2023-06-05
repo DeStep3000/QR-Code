@@ -37,13 +37,15 @@ print(R)
 print("Матрица A:")
 print(res)
 
+import numpy as np
+
 
 def qr_algorithm(A, max_iterations=100):
     n = A.shape[0]
     eigenvalues = np.zeros(n)
 
     for i in range(max_iterations):
-        Q, R = qr_decomposition(A)
+        Q, R = np.linalg.qr(A)
         A = np.dot(R, Q)
 
         # Проверка на сходимость
@@ -62,4 +64,5 @@ A = np.array([[1, 2, 3],
 eigenvalues = qr_algorithm(A)
 print("Собственные числа матрицы A:")
 print(eigenvalues)
+
 
