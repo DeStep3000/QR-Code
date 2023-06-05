@@ -1,19 +1,26 @@
 import numpy as np
 
-def eigenvalues_qr(matrix, iterations=100):
+def qr_decomposition(matrix):
     m, n = matrix.shape
-    eigenvalues = []
+    Q = np.eye(m)
+    R = np.copy(matrix)
 
-    for _ in range(iterations):
-        Q, R = np.linalg.qr(matrix)
-        matrix = np.dot(R, Q)
+    for j in range(n):
+        column = R[j:, j]
+        norm = np.linalg.norm(column)
+        sign = np.sign(column[0])
+        v = column + sign * norm * np.eye(len(column))[:, 0]
+        v = v / np.linalg.norm(v)
 
-    for i in range(n):
-        eigenvalues.append(matrix[i, i])
+        R[j:, :] -= 2.0 * np.outer(v, np.dot(v.T, R[j:, :]))
+        Q[:, j:] -= 2.0 * np.outer(Q[:, j:], np.dot(Q[:, j:].T, v))
 
-    return eigenvalues
+    return Q, R
 
 # Пример использования
 matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-eigenvalues = eigenvalues_qr(matrix)
-print("Собственные числа:", eigenvalues)
+Q, R = qr_decomposition(matrix)
+print("Матрица Q:")
+print(Q)
+print("Матрица R:")
+print(R)
