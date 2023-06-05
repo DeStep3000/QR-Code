@@ -1,26 +1,35 @@
 import numpy as np
 
+def qr_decomposition(A):
+    m, n = A.shape
+    Q = np.eye(m)  # Инициализация матрицы Q как единичной матрицы размерности m x m
+    R = A.copy()  # Копирование исходной матрицы A в матрицу R
 
-def qr_eigenvalues(matrix, iterations=100):
-    n = matrix.shape[0]
-    eigenvalues = np.zeros(n)
-    for _ in range(iterations):
-        Q, R = np.linalg.qr(matrix)
-        matrix = np.dot(R, Q)
+    for j in range(n):
+        # Построение матрицы отражения H_j
+        x = R[j:, j]  # Выбираем столбец матрицы R, начиная с позиции j
+        e = np.zeros_like(x)
+        e[0] = 1  # Вектор e = (1, 0, ..., 0)
 
-    for i in range(n):
-        eigenvalues[i] = matrix[i, i]
+        u = np.sign(x[0]) * np.linalg.norm(x) * e + x  # Вектор u = sign(x[0]) * ||x|| * e + x
+        u = u / np.linalg.norm(u)  # Нормализация вектора u
 
-    return eigenvalues
+        # Построение матрицы отражения H_j = I - 2uu^T
+        H = np.eye(m)
+        H[j:, j:] -= 2.0 * np.outer(u, u)
 
+        # Применение матрицы отражения H_j к матрицам Q и R
+        Q = np.dot(Q, H.T)
+        R = np.dot(H, R)
 
-# Пример использования
-# Создаем квадратную матрицу
-A = np.array([[3, -1, 0], [-1, 2, -1], [0, -1, 1]])
+    return Q, R
+A = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]])
 
-# Находим собственные числа
-eigenvalues = qr_eigenvalues(A)
+Q, R = qr_decomposition(A)
 
-# Выводим результаты
-print("Собственные числа матрицы A:")
-print(eigenvalues)
+print("Матрица Q:")
+print(Q)
+print("Матрица R:")
+print(R)
