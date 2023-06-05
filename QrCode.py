@@ -1,39 +1,34 @@
 import numpy as np
 
+def qr_decomposition(matrix):
+    m, n = matrix.shape
+    q = np.eye(m)  # Единичная матрица
+    r = matrix.astype(np.float64).copy()  # Изменение типа данных на float64
 
-def find_eigenvalues(matrix, epsilon=1e-10, max_iterations=100):
-    n = matrix.shape[0]
-    eigenvalues = []
-    iterations = 0
+    for j in range(n):
+        # Применение матрицы отражения Хаусхолдера для преобразования столбца r[j:, j]
+        x = r[j:, j]
+        e = np.zeros_like(x)
+        e[0] = 1
+        v = np.sign(x[0]) * np.linalg.norm(x) * e + x
+        v /= np.linalg.norm(v)
 
-    while n > 1 and iterations < max_iterations:
-        # QR-разложение матрицы
-        q, r = np.linalg.qr(matrix)
+        v = v.reshape(-1, 1)  # Изменение формы v на вектор-столбец
 
-        # Умножение R на Q для получения новой матрицы
-        matrix = np.dot(r, q)
+        r[j:, j:] -= 2.0 * np.dot(v, np.dot(v.T, r[j:, j:]))  # Исправленная операция
 
-        # Поиск собственных значений на диагонали
-        eigenvalues.extend(matrix.diagonal())
+        # Применение матрицы отражения Хаусхолдера для преобразования матрицы Q
+        q[:, j:] -= 2.0 * np.dot(q[:, j:], np.dot(v, v.T))  # Исправленная операция
 
-        # Проверка сходимости
-        off_diagonal_sum = np.sum(np.abs(matrix) - np.abs(np.diag(matrix)))
-        if off_diagonal_sum < epsilon:
-            break
-
-        n -= 1
-        iterations += 1
-
-    # Добавление последнего собственного значения
-    eigenvalues.append(matrix[0, 0])
-
-    return eigenvalues
-
+    return q, r
 
 # Пример использования
 matrix = np.array([[1, 2, 3],
                    [4, 5, 6],
                    [7, 8, 9]])
 
-eigenvalues = find_eigenvalues(matrix)
-print("Собственные значения:", eigenvalues)
+q, r = qr_decomposition(matrix)
+print("Матрица Q:")
+print(q)
+print("Матрица R:")
+print(r)
