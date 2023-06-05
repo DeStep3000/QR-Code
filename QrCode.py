@@ -28,12 +28,38 @@ A = np.array([[1, 2, 3],
               [7, 8, 9]])
 
 Q, R = qr_decomposition(A)
+res = np.dot(Q, R)
 
 print("Матрица Q:")
 print(Q)
 print("Матрица R:")
 print(R)
-res = np.dot(Q, R)
 print("Матрица A:")
 print(res)
+
+
+def qr_algorithm(A, max_iterations=100):
+    n = A.shape[0]
+    eigenvalues = np.zeros(n)
+
+    for i in range(max_iterations):
+        Q, R = qr_decomposition(A)
+        A = np.dot(R, Q)
+
+        # Проверка на сходимость
+        if np.allclose(np.diag(A), eigenvalues):
+            break
+
+        eigenvalues = np.diag(A)
+
+    return eigenvalues
+
+
+A = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]])
+
+eigenvalues = qr_algorithm(A)
+print("Собственные числа матрицы A:")
+print(eigenvalues)
 
