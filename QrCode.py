@@ -33,3 +33,7 @@ print("Матрица Q:")
 print(Q)
 print("Матрица R:")
 print(R)
+res = np.dot(Q, R)
+print("Матрица A:")
+print(res)
+
