@@ -1,5 +1,16 @@
 import numpy as np
 
+
+def input_matrix():
+    n = int(input('Федя, ты заебал, введи размерность матрицы: '))
+    matrix = []
+    print('Теперь вводи строчки матрицы')
+    for i in range(n):
+        stroka = list(map(int, input('{} строчка: '.format(i + 1)).split()))
+        matrix.append(stroka)
+    return matrix
+
+
 def qr_decomposition(matrix):
     m, n = matrix.shape
     q = np.eye(m)  # Единичная матрица
@@ -22,13 +33,16 @@ def qr_decomposition(matrix):
 
     return q, r
 
-# Пример использования
-matrix = np.array([[1, 2, 3],
-                   [4, 5, 6],
-                   [7, 8, 9]])
 
-q, r = qr_decomposition(matrix)
-print("Матрица Q:")
-print(q)
-print("Матрица R:")
-print(r)
+if __name__ == "__main__":
+    matrix = np.array(input_matrix())
+    print(matrix)
+    # Пример использования
+    # matrix = np.array([[1, 2, 3],
+    #                    [4, 5, 6],
+    #                    [7, 8, 9]])
+    q, r = qr_decomposition(matrix)
+    print("Матрица Q:")
+    print(q)
+    print("Матрица R:")
+    print(r)
