@@ -1,58 +1,53 @@
 import numpy as np
 
 def read_matrix():
-    # Получить размерность матрицы от пользователя
-    n = int(input("Введите размерность матрицы: "))
+    matrix = []
+    size = int(input("Введите размер квадратной матрицы: "))
 
-    # Создать пустую матрицу заданной размерности
-    matrix = np.zeros((n, n), dtype=np.complex128)
+    print("Введите элементы матрицы:")
 
-    # Ввод элементов матрицы
-    for i in range(n):
-        for j in range(n):
-            print(f"Введите элемент [{i}, {j}]: ")
-            real_part = float(input("Вещественная часть: "))
-            imag_part = float(input("Мнимая часть: "))
-            matrix[i, j] = real_part + imag_part * 1j
+    for i in range(size):
+        row = []
+        for j in range(size):
+            element = int(input(f"Введите элемент [{i+1}, {j+1}]: "))
+            row.append(element)
+        matrix.append(row)
 
-    return matrix
+    alpha= int(input('Введите 1, если собственные значения вещественные, 2-комлексно-сопряженные, 3-кратные, 4-комплексно-сопряженнные кратные: '))
+    p=0
+    if (alpha==3 or alpha==4):
+        p=int(input('Введите число, которому собственные значения кратны: '))
 
+    return matrix, alpha,p
 
-def eigenvalues_qr(A):
-    n = A.shape[0]
-    Q = np.copy(A)
+def eigenvalues_qr(matrix, alpha,p, iterations=100):
+    m, n = matrix.shape
     eigenvalues = []
 
-    while True:
-        Q, R = np.linalg.qr(Q)
-        Q = np.dot(R, Q)
+    for _ in range(iterations):
+        Q, R = np.linalg.qr(matrix)
+        matrix = np.dot(R, Q)
 
-        off_diag_sum = np.sum(np.abs(Q - np.diag(np.diagonal(Q))))
-        if off_diag_sum < 1e-6:
-            break
+    if alpha==1:
+        for i in range(n):
+            eigenvalues.append(matrix[i, i])
 
-    i = 0
-    while i < n:
-        if i == n - 1 or np.abs(Q[i + 1, i]) < 1e-6:
-            # Реализация для некратных действительных или комплексных собственных значений
-            eigenvalues.append(Q[i, i])
-            i += 1
-        else:
-            # Реализация для комплексных собственных значений и кратности p
-            lambda_1 = Q[i, i]
-            lambda_2 = Q[i + 1, i + 1]
-            eigenvalues.append(lambda_1 + lambda_2)
-            eigenvalues.append(lambda_1 - lambda_2)
-            i += 2
+    if alpha == 2:
+        i=n-2
+        eigenvalues.append(matrix[i:,i:])
 
+    if alpha == 3:
+        i=n-p
+        eigenvalues.append(matrix[i:, i:])
+
+    if alpha == 4:
+        i = n - 2*p
+        eigenvalues.append(matrix[i:, i:])
     return eigenvalues
 
-# Считывание матрицы с клавиатуры
-A = read_matrix()
-
-# Нахождение собственных чисел
-eigenvalues = eigenvalues_qr(A)
-
-# Вывод собственных чисел
-for eigenvalue in eigenvalues:
-    print(eigenvalue)
+# Пример использования
+#matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+matrix,alpha,p = read_matrix()
+print(matrix)
+eigenvalues = eigenvalues_qr(matrix,alpha,p)
+print("Собственные числа:", eigenvalues)
