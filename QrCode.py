@@ -1,68 +1,58 @@
 import numpy as np
 
-def qr_decomposition(A):
-    m, n = A.shape
-    Q = np.eye(m)  # Инициализация матрицы Q как единичной матрицы размерности m x m
-    R = A.copy()  # Копирование исходной матрицы A в матрицу R
+def read_matrix():
+    # Получить размерность матрицы от пользователя
+    n = int(input("Введите размерность матрицы: "))
 
-    for j in range(n):
-        # Построение матрицы отражения H_j
-        x = R[j:, j]  # Выбираем столбец матрицы R, начиная с позиции j
-        e = np.zeros_like(x)
-        e[0] = 1  # Вектор e = (1, 0, ..., 0)
+    # Создать пустую матрицу заданной размерности
+    matrix = np.zeros((n, n), dtype=np.complex128)
 
-        u = np.sign(x[0]) * np.linalg.norm(x) * e + x  # Вектор u = sign(x[0]) * ||x|| * e + x
-        u = u / np.linalg.norm(u)  # Нормализация вектора u
+    # Ввод элементов матрицы
+    for i in range(n):
+        for j in range(n):
+            print(f"Введите элемент [{i}, {j}]: ")
+            real_part = float(input("Вещественная часть: "))
+            imag_part = float(input("Мнимая часть: "))
+            matrix[i, j] = real_part + imag_part * 1j
 
-        # Построение матрицы отражения H_j = I - 2uu^T
-        H = np.eye(m)
-        H[j:, j:] -= 2.0 * np.outer(u, u)
-
-        # Применение матрицы отражения H_j к матрицам Q и R
-        Q = np.dot(Q, H.T)
-        R = np.dot(H, R)
-
-    return Q, R
-A = np.array([[1, 2, 3],
-              [4, 5, 6],
-              [7, 8, 9]])
-
-Q, R = qr_decomposition(A)
-res = np.dot(Q, R)
-
-print("Матрица Q:")
-print(Q)
-print("Матрица R:")
-print(R)
-print("Матрица A:")
-print(res)
-
-import numpy as np
+    return matrix
 
 
-def qr_algorithm(A, max_iterations=100):
+def eigenvalues_qr(A):
     n = A.shape[0]
-    eigenvalues = np.zeros(n)
+    Q = np.copy(A)
+    eigenvalues = []
 
-    for i in range(max_iterations):
-        Q, R = np.linalg.qr(A)
-        A = np.dot(R, Q)
+    while True:
+        Q, R = np.linalg.qr(Q)
+        Q = np.dot(R, Q)
 
-        # Проверка на сходимость
-        if np.allclose(np.diag(A), eigenvalues):
+        off_diag_sum = np.sum(np.abs(Q - np.diag(np.diagonal(Q))))
+        if off_diag_sum < 1e-6:
             break
 
-        eigenvalues = np.diag(A)
+    i = 0
+    while i < n:
+        if i == n - 1 or np.abs(Q[i + 1, i]) < 1e-6:
+            # Реализация для некратных действительных или комплексных собственных значений
+            eigenvalues.append(Q[i, i])
+            i += 1
+        else:
+            # Реализация для комплексных собственных значений и кратности p
+            lambda_1 = Q[i, i]
+            lambda_2 = Q[i + 1, i + 1]
+            eigenvalues.append(lambda_1 + lambda_2)
+            eigenvalues.append(lambda_1 - lambda_2)
+            i += 2
 
     return eigenvalues
 
+# Считывание матрицы с клавиатуры
+A = read_matrix()
 
-A = np.array([[1, 2, 3],
-              [4, 5, 6],
-              [7, 8, 9]])
+# Нахождение собственных чисел
+eigenvalues = eigenvalues_qr(A)
 
-eigenvalues = qr_algorithm(A)
-print("Собственные числа матрицы A:")
-print(eigenvalues)
-
-
+# Вывод собственных чисел
+for eigenvalue in eigenvalues:
+    print(eigenvalue)
