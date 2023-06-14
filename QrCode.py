@@ -1,7 +1,7 @@
 import numpy as np
 from math import sqrt
 
-epsilon = 1e-10
+epsilon = 1e-30
 
 
 def qr_decomposition(A):
@@ -26,24 +26,7 @@ def qr_decomposition(A):
     return Q, R
 
 
-# Пример использования
-A = np.array([[1, 2, 3],
-              [4, 5, 6],
-              [7, 8, 9]])
-
-Q, R = qr_decomposition(A)
-A_res = np.dot(Q, R)
-
-print("Матрица Q:")
-print(Q)
-print("Матрица R:")
-print(R)
-A_res = np.dot(Q, R)
-print("Матрица A_res:")
-print(A_res)
-
-
-def qr_algorithm(A, max_iterations=1000):
+def qr_algorithm(A, max_iterations=100000):
     n = A.shape[0]
 
     for i in range(max_iterations):
@@ -54,11 +37,7 @@ def qr_algorithm(A, max_iterations=1000):
         off_diag_sum = np.sum(np.abs(A - np.diag(np.diagonal(A))))
         if off_diag_sum < epsilon:
             break
-
     return A
-
-
-A_k = qr_algorithm(A)
 
 
 def find_eigenvalues(A):
@@ -89,15 +68,38 @@ def find_eigenvalues(A):
             x1 = -b2 / 2
             eigenvalues.append(x1)
 
-        if d < 0:
-            x1 = -b2 / 2 + sqrt(-d) * IMAG / 2  # как прописать в питоне эти мнимые числа как числа хз
-            x2 = -b2 / 2 - sqrt(-d) * IMAG / 2
+        elif d < 0:
+            x1 = complex(-b2 / 2, sqrt(-d) / 2)  # как прописать в питоне эти мнимые числа как числа хз
+            x2 = complex(-b2 / 2, -sqrt(-d) / 2)
+            eigenvalues.extend([x1, x2])
+        else:
+            print('Ошибка: дискриминант > 0')
+
+    if flag != 1:
+        eigenvalues.append(A[-1][-1])
 
     return eigenvalues
 
 
-eigenvalues_res = find_eigenvalues(A)
+if __name__ == "__main__":
+    A = np.array([[0, 0, 2],
+                  [1, 0, -5],
+                  [0, 1, 4]])
 
-print('eigenvalues:')
-for eigenvalue in eigenvalues_res:
-    print(eigenvalue)
+    Q, R = qr_decomposition(A)
+
+    print("Матрица Q:")
+    print(Q)
+    print("Матрица R:")
+    print(R)
+
+    print("Матрица A_res:")
+    print(np.dot(Q, R))
+
+    A_k = qr_algorithm(A)
+    print(A_k)
+    eigenvalues_res = find_eigenvalues(A_k)
+
+    print('eigenvalues:')
+    for eigenvalue in eigenvalues_res:
+        print(eigenvalue)
