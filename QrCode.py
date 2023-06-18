@@ -1,36 +1,16 @@
+
 import numpy as np
 from math import sqrt
 
 epsilon = 1e-30
 
 
-def qr_decomposition(A):
-    m, n = A.shape
-    Q = np.eye(m)  # Инициализация матрицы Q как единичной матрицы размером m x m
-    R = np.copy(A)  # Создание копии исходной матрицы A
-
-    for j in range(n):
-        # Вычисление вектора отражения
-        x = R[j:, j]
-        norm_x = np.linalg.norm(x)
-        v = np.zeros_like(x)
-        v[0] = x[0] + np.copysign(norm_x, x[0])
-        v[1:] = x[1:]
-
-        # Применение преобразования Хаусхолдера к матрицам Q и R
-        H = np.eye(m)
-        H[j:, j:] -= 2.0 * np.outer(v, v) / np.dot(v, v)
-        Q = np.dot(Q, H)
-        R = np.dot(H, R)
-
-    return Q, R
-
 
 def qr_algorithm(A, max_iterations=100000):
     n = A.shape[0]
 
     for i in range(max_iterations):
-        Q, R = qr_decomposition(A)
+        Q, R = np.linalg.qr(A)
         A = np.dot(R, Q)
 
         # Проверяем условие сходимости
@@ -85,7 +65,7 @@ if __name__ == "__main__":
                   [1, 0, -5],
                   [0, 1, 4]])
 
-    Q, R = qr_decomposition(A)
+    Q, R = np.linalg.qr(A)
 
     print("Матрица Q:")
     print(Q)
@@ -96,8 +76,10 @@ if __name__ == "__main__":
     print(np.dot(Q, R))
 
     A_k = qr_algorithm(A)
+    print("Матрица A_k:")
     print(A_k)
 
     print('eigenvalues:')
     for eigenvalue in find_eigenvalues(A_k):
         print(eigenvalue)
+
