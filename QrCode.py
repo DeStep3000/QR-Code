@@ -15,12 +15,34 @@ def read_square_matrix():
         matrix.append(row)
     return matrix, size
 
+def qr_decomposition(A,size):
+    m = size
+    n = size
+    Q = np.eye(m)  # Инициализация матрицы Q как единичной матрицы размером m x m
+    R = np.copy(A)  # Создание копии исходной матрицы A
+
+    for j in range(n):
+        # Вычисление вектора отражения
+        x = R[j:, j]
+        norm_x = np.linalg.norm(x)
+        v = np.zeros_like(x)
+        v[0] = x[0] + np.copysign(norm_x, x[0])
+        v[1:] = x[1:]
+
+        # Применение преобразования Хаусхолдера к матрицам Q и R
+        H = np.eye(m)
+        H[j:, j:] -= 2.0 * np.outer(v, v) / np.dot(v, v)
+        Q = np.dot(Q, H)
+        R = np.dot(H, R)
+
+    return Q, R
+
 
 def qr_algorithm(A, size, max_iterations=100000):
     n = size
 
     for i in range(max_iterations):
-        Q, R = np.linalg.qr(A)
+        Q, R = qr_decomposition(A,size)
         A = np.dot(R, Q)
 
         # Проверяем условие сходимости
@@ -28,7 +50,6 @@ def qr_algorithm(A, size, max_iterations=100000):
         if off_diag_sum < epsilon:
             break
     return A
-
 
 def find_eigenvalues(A):
     eigenvalues = []
@@ -77,7 +98,7 @@ if __name__ == "__main__":
 
     A,size=read_square_matrix()
 
-    Q, R = np.linalg.qr(A)
+    Q, R = qr_decomposition(A,size)
 
     print("Матрица Q:")
     print(Q)
@@ -94,4 +115,6 @@ if __name__ == "__main__":
     print('eigenvalues:')
     for eigenvalue in find_eigenvalues(A_k):
         print(eigenvalue)
+
+
 
