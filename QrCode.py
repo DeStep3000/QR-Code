@@ -1,13 +1,23 @@
-
 import numpy as np
 from math import sqrt
 
 epsilon = 1e-30
 
+def read_square_matrix():
+    size = int(input("Введите размерность квадратной матрицы: "))
+    matrix = []
+    print("Введите элементы матрицы построчно:")
+    for _ in range(size):
+        row = []
+        for _ in range(size):
+            element = int(input())
+            row.append(element)
+        matrix.append(row)
+    return matrix, size
 
 
-def qr_algorithm(A, max_iterations=100000):
-    n = A.shape[0]
+def qr_algorithm(A, size, max_iterations=100000):
+    n = size
 
     for i in range(max_iterations):
         Q, R = np.linalg.qr(A)
@@ -61,9 +71,11 @@ def find_eigenvalues(A):
 
 
 if __name__ == "__main__":
-    A = np.array([[0, 0, 2],
-                  [1, 0, -5],
-                  [0, 1, 4]])
+    #A = np.array([[0, 0, 2],
+    #              [1, 0, -5],
+    #              [0, 1, 4]])
+
+    A,size=read_square_matrix()
 
     Q, R = np.linalg.qr(A)
 
@@ -75,7 +87,7 @@ if __name__ == "__main__":
     print("Матрица A_res:")
     print(np.dot(Q, R))
 
-    A_k = qr_algorithm(A)
+    A_k = qr_algorithm(A,size)
     print("Матрица A_k:")
     print(A_k)
 
